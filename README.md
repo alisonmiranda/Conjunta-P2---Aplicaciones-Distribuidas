@@ -59,7 +59,13 @@ La verificación final de Alpha quedó registrada con una respuesta exitosa del 
 
 También se validó el flujo de transferencia con una respuesta correcta del endpoint protegido.
 
-![Acceso autorizado Beta](media/captura_servidor_corriendo_postman.png)
+![Acceso autorizado Beta](media/captura_alpha_beta_desde_terminal.png)
+
+### Evidencia adicional de terminal para Alpha y Beta
+
+Además de las capturas del Postman, se registró la respuesta real desde la terminal para mostrar el comportamiento correcto de ambos endpoints con JWT válido.
+
+![Evidencia terminal Alpha y Beta](media/captura_alpha_beta_desde_terminal.png)
 
 ### Prueba con token inválido o expirado
 
@@ -76,7 +82,7 @@ Tras ejecutar las peticiones con un JWT válido, los resultados obtenidos fueron
 - `GET /v1/account-alpha/balance?accountId=ACC-12345` → `200` con el balance correspondiente.
 - `POST /v1/transfer-beta/execute` → `200` con la transacción ejecutada correctamente.
 
-Estos resultados evidencian que tanto el endpoint Alpha como el endpoint Beta responden correctamente cuando el token es válido.
+En la evidencia registrada desde terminal también se observaron respuestas exitosas para ambos flujos, lo que confirma que la autenticación y la lógica de negocio quedaron funcionando correctamente.
 
 ## Conclusión
 
