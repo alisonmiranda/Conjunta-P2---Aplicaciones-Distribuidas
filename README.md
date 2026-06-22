@@ -49,9 +49,17 @@ Durante la validación se ejecutaron pruebas sobre el servidor y sobre los endpo
 
 ![Health check](media/captura_health_check_postman.png)
 
-### Prueba con acceso autorizado
+### Prueba con acceso autorizado en Alpha
 
-![Acceso autorizado](media/captura_error_intencional_postman.png)
+La verificación final de Alpha quedó registrada con una respuesta exitosa del endpoint protegido.
+
+![Acceso autorizado Alpha](media/captura_error_intencional_postman.png)
+
+### Prueba con acceso autorizado en Beta
+
+También se validó el flujo de transferencia con una respuesta correcta del endpoint protegido.
+
+![Acceso autorizado Beta](media/captura_servidor_corriendo_postman.png)
 
 ### Prueba con token inválido o expirado
 
@@ -60,6 +68,15 @@ Durante la validación se ejecutaron pruebas sobre el servidor y sobre los endpo
 ### Evidencia en Sentry del error operacional
 
 ![Panel de Sentry](media/captura_issues_panel_sentry.png)
+
+## Evidencia final de funcionamiento
+
+Tras ejecutar las peticiones con un JWT válido, los resultados obtenidos fueron:
+
+- `GET /v1/account-alpha/balance?accountId=ACC-12345` → `200` con el balance correspondiente.
+- `POST /v1/transfer-beta/execute` → `200` con la transacción ejecutada correctamente.
+
+Estos resultados evidencian que tanto el endpoint Alpha como el endpoint Beta responden correctamente cuando el token es válido.
 
 ## Conclusión
 

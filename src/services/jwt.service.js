@@ -11,16 +11,17 @@ const PUBLIC_KEY_PATH = path.join(__dirname, '../../public.pem');
  * El payload se estructura con claims seguros: sub, name y exp.
  *
  * @param {Object} user - Objeto con la información del usuario a firmar.
+ * @param {number} expiresInSeconds - Tiempo de validez del token en segundos.
  * @returns {string} JWT Token firmado.
  */
-function signToken(user) {
+function signToken(user, expiresInSeconds = 120) {
   const privateKey = fs.readFileSync(PRIVATE_KEY_PATH, 'utf8');
   const now = Math.floor(Date.now() / 1000);
 
   const payload = {
     sub: user.id || user.sub,
     name: user.name || user.username,
-    exp: now + 120
+    exp: now + expiresInSeconds
   };
 
   return jwt.sign(payload, privateKey, {
