@@ -1,115 +1,67 @@
-# Bitácora de evaluación — Fintech SecurePay
+# Bitácora del proyecto Fintech SecurePay
 
-Este repositorio funciona como bitácora de evaluación para evidenciar el comportamiento de la API, la autenticación JWT y el monitoreo con Sentry.
+En este proyecto configuré una API básica para simular el flujo de autenticación y monitoreo de una aplicación financiera. Durante el desarrollo, fui ajustando la arquitectura, validando el comportamiento de los endpoints y registrando evidencia de las pruebas realizadas.
 
-## 1. Descripción general
+## ¿Qué hice?
 
-La API expone dos endpoints protegidos mediante JWT RS256:
+Comencé por estructurar la aplicación para separar responsabilidades y facilitar la lectura del código. Luego implementé autenticación mediante JWT con firma asimétrica RS256, para que las rutas protegidas requirieran un token válido en el header `Authorization`.
 
-- `GET /v1/account-alpha/balance`
-- `POST /v1/transfer-beta/execute`
+También integré Sentry para capturar errores operacionales y poder visualizar en el panel cómo se registran los eventos con información adicional del usuario y la operación ejecutada.
 
-Además, la aplicación cuenta con un endpoint de salud para verificar que el servidor está disponible.
+## Cómo ejecuté la API
 
-## 2. Cómo ejecutar el proyecto
+Para correr el proyecto utilicé:
 
 ```bash
 npm install
 npm start
 ```
 
-El servidor queda disponible en:
+Con esto, el servidor quedó disponible en:
 
 - `http://localhost:3000`
 
-## 3. Variables de entorno
+## Endpoints que validé
 
-El proyecto utiliza un archivo `.env` para la configuración local.
+Durante la evaluación probé los siguientes accesos:
 
-Ejemplo base:
+- `GET /` para verificar el estado del servidor
+- `GET /v1/account-alpha/balance?accountId=ACC-12345` con token válido
+- `POST /v1/transfer-beta/execute` con token válido y payload correcto
+- escenarios con token ausente o inválido para comprobar las respuestas `401`
 
-```env
-PORT=3000
-NODE_ENV=development
-SENTRY_DSN=
-```
+## Evidencia de pruebas en Postman
 
-Las llaves RSA (`private.pem` y `public.pem`) se generan localmente y no deben subirse al repositorio.
+Aquí dejo las capturas que registré mientras validaba el funcionamiento del sistema.
 
-## 4. Endpoints principales
-
-### Health check
-
-```http
-GET http://localhost:3000/
-```
-
-### Balance Alpha
-
-```http
-GET http://localhost:3000/v1/account-alpha/balance?accountId=ACC-12345
-Authorization: Bearer <token>
-```
-
-### Transferencia Beta
-
-```http
-POST http://localhost:3000/v1/transfer-beta/execute
-Authorization: Bearer <token>
-Content-Type: application/json
-```
-
-Body:
-
-```json
-{
-  "fromAccountId": "ACC-12345",
-  "toAccountId": "ACC-67890",
-  "amount": 100
-}
-```
-
-## 5. Generación del token JWT
-
-Para probar la autenticación, el token debe generarse con la clave privada RSA y enviarse en el header `Authorization` como `Bearer <token>`.
-
-Ejemplo de prueba válida:
-
-- `sub: usr_001`
-- `name: Alice`
-
-## 6. Bitácora de pruebas (Postman)
-
-### 6.1 Servidor corriendo
+### Servidor en ejecución
 
 ![Servidor corriendo](media/captura_servidor_corriendo_postman.png)
 
-### 6.2 Health check
+### Verificación del endpoint raíz
 
 ![Health check](media/captura_health_check_postman.png)
 
-### 6.3 Token válido / acceso autorizado
+### Prueba con acceso autorizado
 
-![Token válido](media/captura_error_intencional_postman.png)
+![Acceso autorizado](media/captura_error_intencional_postman.png)
 
-### 6.4 Token inválido / expirado
+### Prueba con token inválido o expirado
 
-![Token inválido](media/captura_token_invalido_postman.png)
+![Acceso denegado](media/captura_token_invalido_postman.png)
 
-## 7. Bitácora de observabilidad (Sentry)
+## Evidencia de monitoreo en Sentry
 
-La aplicación captura errores operacionales con tags relacionados con el usuario y la operación ejecutada.
-
-### 7.1 Panel de Sentry con error operacional 500
+Además, validé el comportamiento de error operacional para confirmar que la plataforma captura correctamente las excepciones. En la siguiente captura se observa el error registrado con los tags relacionados al usuario y a la operación.
 
 ![Panel de Sentry](media/captura_issues_panel_sentry.png)
 
-## 8. Evidencia del comportamiento esperado
+## Resultado que obtuve
 
-- Sin token o con token inválido: respuesta `401`.
-- Con token válido y datos correctos: respuesta `200`.
-- Si se fuerza el error operacional: respuesta `500` y registro en Sentry.
+Con estas pruebas pude comprobar que:
 
-## 9. Notas finales
+- el servidor responde correctamente cuando está en ejecución;
+- las rutas protegidas requieren un JWT válido;
+- los errores operacionales quedan registrados en Sentry con contexto útil para depuración.
 
-Esta bitácora recoge las capturas necesarias para demostrar que el sistema funciona correctamente en los escenarios solicitados: autenticación, acceso permitido/denegado y monitoreo de errores operacionales.
+Este README quedó como una bitácora personal del proceso, con las pruebas y evidencias que utilicé para verificar el comportamiento de la API.
