@@ -1,40 +1,47 @@
-# Bitácora del proyecto Fintech SecurePay
+# Bitácora de evaluación — Fintech SecurePay
 
-En este proyecto configuré una API básica para simular el flujo de autenticación y monitoreo de una aplicación financiera. Durante el desarrollo, fui ajustando la arquitectura, validando el comportamiento de los endpoints y registrando evidencia de las pruebas realizadas.
+Durante este proyecto trabajé sobre una API que debía responder como un sistema distribuido simulado, con separación de responsabilidades, autenticación stateless y observabilidad para errores operacionales. A lo largo del proceso fui corrigiendo la arquitectura, ajustando la seguridad del flujo JWT y dejando evidencia de las pruebas que realicé para comprobar el comportamiento del sistema.
 
-## ¿Qué hice?
+## C1: Refactorización SOLID (SRP & DIP)
 
-Comencé por estructurar la aplicación para separar responsabilidades y facilitar la lectura del código. Luego implementé autenticación mediante JWT con firma asimétrica RS256, para que las rutas protegidas requirieran un token válido en el header `Authorization`.
+Desde el inicio, el objetivo fue dejar de trabajar con una lógica monolítica concentrada en un solo punto. Reorganicé la aplicación para separar responsabilidades entre rutas, controladores, servicios de negocio y servicios auxiliares. Esto me permitió que la capa de negocio ya no dependiera directamente de una implementación concreta en cada caso, sino que quedara más preparada para recibir cambios sin afectar el flujo completo.
 
-También integré Sentry para capturar errores operacionales y poder visualizar en el panel cómo se registran los eventos con información adicional del usuario y la operación ejecutada.
+En la práctica, el servicio financiero quedó desacoplado de la lógica de verificación y del manejo de estado, lo que refleja un enfoque más cercano al principio de responsabilidad única y a la inyección de dependencias.
+
+## C2: Autenticación Stateless (JWT RS256)
+
+Para la autenticación implementé un flujo basado en JWT con firma asimétrica RS256. El sistema valida el token mediante la clave pública, evitando depender de un secreto compartido y manteniendo el protocolo stateless, tal como corresponde a este tipo de arquitectura.
+
+También ajusté la manera en que se leen las llaves RSA y el manejo del header de autorización, para que el proceso sea más robusto frente a errores comunes como tokens mal formados o cabeceras incompletas. El resultado fue que las rutas protegidas solo responden correctamente cuando el JWT es válido y está bien estructurado.
+
+## C3: Observabilidad y Sentry Tracking
+
+La observabilidad fue otra parte clave del trabajo. Integré Sentry para diferenciar correctamente entre errores de seguridad y errores operacionales. Así, cuando la aplicación detecta una falla real del sistema, el evento se reporta con contexto adicional, mientras que los accesos no autorizados se manejan como respuestas `401` sin convertir el problema en un fallo de infraestructura.
+
+Además, dejé el seguimiento con tags de usuario y operación para que el error quede más claro al momento de revisar el panel.
+
+## C4: GitOps y trazabilidad DevOps
+
+También cuidé el lado de control de versiones. Trabajé con ramas separadas por funcionalidad, mantuve mensajes de commit más claros y fui registrando cambios progresivos en lugar de dejar todo concentrado en un solo paso. Además, configuré correctamente el manejo de variables sensibles para que el archivo `.env` no quede expuesto y dejé una plantilla base (`.env.example`) para facilitar la configuración del entorno.
 
 ## Cómo ejecuté la API
 
-Para correr el proyecto utilicé:
+Para validar el sistema, ejecuté la aplicación con:
 
 ```bash
 npm install
 npm start
 ```
 
-Con esto, el servidor quedó disponible en:
+Una vez iniciada, la API quedó disponible en:
 
 - `http://localhost:3000`
 
-## Endpoints que validé
+## Evidencia de pruebas realizadas
 
-Durante la evaluación probé los siguientes accesos:
+Durante la validación ejecuté pruebas sobre el servidor y sobre los endpoints protegidos. A continuación dejo las capturas que registré para documentar el proceso.
 
-- `GET /` para verificar el estado del servidor
-- `GET /v1/account-alpha/balance?accountId=ACC-12345` con token válido
-- `POST /v1/transfer-beta/execute` con token válido y payload correcto
-- escenarios con token ausente o inválido para comprobar las respuestas `401`
-
-## Evidencia de pruebas en Postman
-
-Aquí dejo las capturas que registré mientras validaba el funcionamiento del sistema.
-
-### Servidor en ejecución
+### Servidor corriendo
 
 ![Servidor corriendo](media/captura_servidor_corriendo_postman.png)
 
@@ -50,18 +57,10 @@ Aquí dejo las capturas que registré mientras validaba el funcionamiento del si
 
 ![Acceso denegado](media/captura_token_invalido_postman.png)
 
-## Evidencia de monitoreo en Sentry
-
-Además, validé el comportamiento de error operacional para confirmar que la plataforma captura correctamente las excepciones. En la siguiente captura se observa el error registrado con los tags relacionados al usuario y a la operación.
+### Evidencia en Sentry del error operacional
 
 ![Panel de Sentry](media/captura_issues_panel_sentry.png)
 
-## Resultado que obtuve
+## Conclusión
 
-Con estas pruebas pude comprobar que:
-
-- el servidor responde correctamente cuando está en ejecución;
-- las rutas protegidas requieren un JWT válido;
-- los errores operacionales quedan registrados en Sentry con contexto útil para depuración.
-
-Este README quedó como una bitácora personal del proceso, con las pruebas y evidencias que utilicé para verificar el comportamiento de la API.
+Con este trabajo logré dejar una API más ordenada, con una autenticación más sólida, mejor trazabilidad de errores y una bitácora clara de las pruebas que validan el comportamiento del sistema. La documentación refleja no solo el resultado final, sino también el proceso seguido para corregir, probar y evidenciar cada criterio evaluado.
