@@ -8,7 +8,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(Sentry.Handlers.requestHandler());
 
 app.use('/v1', routes);
 
@@ -18,6 +17,10 @@ app.get('/', (req, res) => {
     description: 'API base para evaluaciones de aplicaciones distribuidas (ESPE)',
     status: 'ONLINE'
   });
+});
+
+app.get('/debug-sentry', (req, res, next) => {
+  next(new Error('My first Sentry error!'));
 });
 
 Sentry.setupExpressErrorHandler(app);
